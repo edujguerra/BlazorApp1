@@ -1,0 +1,139 @@
+﻿@inject IRestauranteService restauranteService 
+@inject NavigationManager NavigationManager
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+@if (restaurantes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Endereco</th>
+                <th>Inicio</th>
+                <th>Fim</th>
+                <th>Tipo Cozinha</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Restaurante rest in restaurantes)
+            {
+                <tr>
+                    <td>@rest.id</td>
+                    <td>@rest.nome</td>
+                    <td>@rest.endereco</td>
+                    <td>@rest.horaInicio</td>
+                    <td>@rest.horaFinal</td>
+                    <td>@rest.tipoCozinha.id - @rest.tipoCozinha.nome</td>
+                </tr>
+            }
+        </tbody>
+
+        <br />
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th>Endereco</th>
+                <th>Inicio</th>
+                <th>Fim</th>
+                <th>Tipo Cozinha</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@restaurante.id</td>
+                <td>@restaurante.nome</td>
+                <td>@restaurante.endereco</td>
+                <td>@restaurante.horaInicio</td>
+                <td>@restaurante.horaFinal</td>
+                <td>@restaurante.tipoCozinha.id - @restaurante.tipoCozinha.nome</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button 
+        type="button" 
+        class="btn btn-primary"
+        @onclick="adicionaRestaurante">
+        Adiciona
+    </button>
+
+    <button type="button"
+            class="btn btn-secondary"
+            @onclick="updateRestaurante">
+        Update
+    </button>
+
+    <button type="button"
+            class="btn btn-danger"
+            @onclick="deleteRestaurante">
+        Deletar
+    </button>
+}
+
+
+@code {
+    public IEnumerable<Restaurante> ?restaurantes;
+    public Restaurante? restaurante;
+
+    protected override async Task OnInitializedAsync()
+    {
+        restaurantes = await restauranteService.findAll();
+        restaurante = await restauranteService.findById(2);
+    }
+
+    private async void adicionaRestaurante()
+    {
+        TipoCozinha tipo = new TipoCozinha();
+        tipo.id = 1;
+
+        Restaurante restaurante = new Restaurante();
+
+        restaurante.nome = "Restaurante Blazor";
+        restaurante.endereco = "rua tal";
+        restaurante.horaFinal = "22:00";
+        restaurante.horaInicio = "17:00";
+        restaurante.tipoCozinha = tipo;
+
+        restaurante = await restauranteService.save(restaurante);
+        restaurantes = await restauranteService.findAll();
+        StateHasChanged();
+    }
+
+    private async void deleteRestaurante()
+    {        
+        await restauranteService.delete(12);
+        await restauranteService.delete(13);
+        await restauranteService.delete(14);
+        await restauranteService.delete(15);
+        await restauranteService.delete(16);
+        restaurantes = await restauranteService.findAll();
+        StateHasChanged();
+    }
+
+    private async void updateRestaurante()
+    {
+        TipoCozinha tipo = new TipoCozinha();
+        tipo.id = 1;
+
+        Restaurante restaurante = new Restaurante();
+
+        restaurante.id = 3;
+        restaurante.nome = "Restaurante Alterado novamente";
+        restaurante.endereco = "rua nova";
+        restaurante.horaFinal = "22:00";
+        restaurante.horaInicio = "17:00";
+        restaurante.tipoCozinha = tipo;
+
+        restaurante = await restauranteService.update(restaurante);
+        restaurantes = await restauranteService.findAll();
+        StateHasChanged();
+    }
+}
